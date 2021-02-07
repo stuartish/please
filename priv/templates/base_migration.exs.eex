@@ -1,0 +1,29 @@
+defmodule <%= module_prefix %>.Repo.Migrations.CreatePleaseTables do
+  use Ecto.Migration
+
+  def change do
+    create table(:subjects<%= if not is_nil(db_prefix), do: ", prefix: \"#{db_prefix}\"" %>, primary_key: false) do
+      <%= for {subject_id_field, subject_table_name} <- subjects do %>
+        add(:<%= subject_id_field %>, references(:<%= subject_table_name %>), primary_key: true)
+      <% end %>
+    end
+
+    create table(:groups<%= if not is_nil(db_prefix), do: ", prefix: \"#{db_prefix}\"" %>, primary_key: false) do
+      <%= for {group_id_field, group_table_name} <- groups do %>
+        add(:<%= group_id_field %>, references(:<%= group_table_name %>), primary_key: true)
+      <% end %>
+      add(:global, :boolean, primary_key: true)
+    end
+
+    # Omit if you already have a roles table.
+    create table(:roles<%= if not is_nil(db_prefix), do: ", prefix: \"#{db_prefix}\"" %>) do
+      add(:permissions, {:array, :string})
+    end
+
+    create table(:subjects_groups_roles<%= if not is_nil(db_prefix), do: ", prefix: \"#{db_prefix}\"" %>, primary_key: false) do 
+      add(:subject_id, references(:subjects), primary_key: true)
+      add(:group_id, references(:groups), primary_key: true)
+      add(:role_id, references(:roles), primary_key: true)
+    end
+  end
+end
