@@ -35,6 +35,8 @@ defmodule Mix.Tasks.Please.Gen.BaseMigration do
   import Mix.Ecto
   import Mix.Generator
 
+  import Please.Config
+
   @doc false
   def run(args) do
     no_umbrella!("ecto.gen.migration")
@@ -62,45 +64,6 @@ defmodule Mix.Tasks.Please.Gen.BaseMigration do
       create_directory(path)
       create_file(target_file, generated_file)
     end)
-  end
-
-  defp app_module do
-    Mix.Project.config()
-    |> Keyword.fetch!(:app)
-    |> to_string()
-    |> Macro.camelize()
-  end
-
-  defp db_prefix do
-    :please
-    |> Application.fetch_env!(Please)
-    |> Keyword.get(:prefix, nil)
-  end
-
-  defp groups do
-    :please
-    |> Application.fetch_env!(Please)
-    |> Keyword.get(:groups, [])
-    |> Enum.map(&maybe_infer_key_and_table/1)
-  end
-
-  defp subjects do
-    :please
-    |> Application.fetch_env!(Please)
-    |> Keyword.get(:subjects, [:user])
-    |> Enum.map(&maybe_infer_key_and_table/1)
-  end
-
-  defp maybe_infer_key_and_table(spec) when is_atom(spec) do
-    assoc = Atom.to_string(spec)
-
-    table_name = "#{assoc}s"
-    key_name = "#{assoc}_id"
-    {key_name, table_name}
-  end
-
-  defp maybe_infer_key_and_table({key, table}) do
-    {Atom.to_string(key), Atom.to_string(table)}
   end
 
   defp timestamp do

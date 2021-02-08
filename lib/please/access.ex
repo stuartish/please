@@ -17,22 +17,22 @@ defmodule Please.Access do
     grant(agent, [role], organization)
   end
 
-  defp ensure_subject(agent) do
-    agent
+  defp ensure_subject(entity) do
+    entity
     |> repo().preload([:subject])
     |> Map.get(:subject)
     |> case do
-      nil -> agent |> Ecto.build_assoc(agent, :subject) |> repo().insert!()
+      nil -> entity |> Ecto.build_assoc(entity, :subject) |> repo().insert!()
       %Subject{} = subject -> subject
     end
   end
 
-  defp ensure_group(organization) do
-    organization
+  defp ensure_group(entity) do
+    entity
     |> repo().preload([:group])
     |> Map.get(:group)
     |> case do
-      nil -> agent |> Ecto.build_assoc(agent, :group) |> repo().insert!()
+      nil -> entity |> Ecto.build_assoc(entity, :group) |> repo().insert!()
       %Subject{} = subject -> subject
     end
   end

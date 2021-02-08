@@ -36,12 +36,12 @@ defmodule Please.Ecto.SchemaExtension.Resource do
     end
   end
 
-  def find_owner_keys(owner_key, resource) when is_atom(owner) do
+  def find_owner_keys(owner_key, resource) when is_atom(owner_key) do
     {{owner_key, resource[owner_key]}, resource}
   end
 
   def find_owner_keys({:via_assoc, {owner_key, assoc_name}}, resource) when is_atom(assoc_name) do
-    %{^assoc_name => assoc_val} = resource = repo().preload(assoc_name)
+    %{^assoc_name => assoc_val} = resource = repo().preload(resource, assoc_name)
 
     results =
       assoc_val
@@ -52,7 +52,7 @@ defmodule Please.Ecto.SchemaExtension.Resource do
   end
 
   def find_owner_keys({:via_assoc, {owner_key, {assoc_name, field_name}}}, resource) do
-    %{^assoc_name => assoc_val} = resource = repo().preload(assoc_name)
+    %{^assoc_name => assoc_val} = resource = repo().preload(resource, assoc_name)
 
     results =
       assoc_val
@@ -66,11 +66,13 @@ defmodule Please.Ecto.SchemaExtension.Resource do
     {{owner_key, resource[field_name]}, resource}
   end
 
-  def handle_owner_assoc(assoc_value, key \\ :id) when is_list(assoc) do
+
+  def handle_owner_assoc(assoc_value, key \\ :id)
+  def handle_owner_assoc(assoc_value, key) when is_list(assoc_value) do
     Enum.map(assoc_value, &Map.get(&1, key))
   end
 
-  def handle_owner_assoc(assoc_value, key \\ :id) when is_struct(assoc_value) do
+  def handle_owner_assoc(assoc_value, key) when is_struct(assoc_value) do
     [Map.get(assoc_value, key)]
   end
 end
